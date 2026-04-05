@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useSaltPresetSession } from '@/composables/useSaltPresetSession'
 import { saltLevelOverlayLayouts } from '@/config/saltLevelOverlayLayout'
 import { useRealtimeDetectFeed } from '@/composables/useRealtimeDetectFeed'
 
@@ -8,7 +9,11 @@ const props = defineProps<{
 }>()
 
 const items = computed(() => saltLevelOverlayLayouts[props.pageId] ?? [])
-const { latestPoint } = useRealtimeDetectFeed()
+const { historyId } = useSaltPresetSession()
+const resolvedHistoryId = computed(() => historyId.value ?? undefined)
+const { latestPoint } = useRealtimeDetectFeed({
+  historyId: resolvedHistoryId,
+})
 
 function formatSaltValue(value: number) {
   return `${value.toFixed(1)}%`

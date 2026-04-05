@@ -14,3 +14,9 @@ export async function apiGet<T>(path: string, params?: Record<string, unknown>) 
 
   return response.data
 }
+
+export async function apiPost<T>(path: string, body?: unknown) {
+  const response = await axios.post<ApiResponse<T>>(`${getApiBaseUrl()}${path}`, body)
+
+  return response.data
+}

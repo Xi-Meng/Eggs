@@ -6,7 +6,7 @@ export interface DesignPageMeta {
 }
 
 export const designPages: DesignPageMeta[] = [
-  { id: 'otl', title: '开始页', routePath: '/design/otl' },
+  { id: 'otl', title: '开始页', routePath: '/design/otl', customComponent: 'Page_otl.vue' },
   { id: 'Mln', title: '注册页', routePath: '/design/Mln', customComponent: 'Page_Mln.vue' },
   { id: 'bQv', title: '登录页', routePath: '/design/bQv', customComponent: 'Page_bQv.vue' },
   { id: 'oJi', title: '主页', routePath: '/design/oJi', customComponent: 'Page_oJi.vue' },
@@ -29,11 +29,11 @@ export const designPages: DesignPageMeta[] = [
   { id: '54L', title: '个人页', routePath: '/design/54L' },
   { id: 'o4T', title: '设置页', routePath: '/design/o4T' },
   { id: 'OSn', title: '关于我们', routePath: '/design/OSn' },
-  { id: 'Zap', title: '肉类', routePath: '/design/Zap' },
-  { id: 'b9i', title: '牛肉', routePath: '/design/b9i' },
-  { id: 'Pfh', title: '汤品', routePath: '/design/Pfh' },
-  { id: 'SL_', title: '蔬菜', routePath: '/design/SL_' },
-  { id: 'Eq_', title: '饮品', routePath: '/design/Eq_' },
+  { id: 'Zap', title: '肉类', routePath: '/design/Zap', customComponent: 'Page_Zap.vue' },
+  { id: 'b9i', title: '牛肉', routePath: '/design/b9i', customComponent: 'Page_b9i.vue' },
+  { id: 'Pfh', title: '汤品', routePath: '/design/Pfh', customComponent: 'Page_Pfh.vue' },
+  { id: 'SL_', title: '蔬菜', routePath: '/design/SL_', customComponent: 'Page_SL_.vue' },
+  { id: 'Eq_', title: '饮品', routePath: '/design/Eq_', customComponent: 'Page_Eq_.vue' },
   { id: '5VK', title: '食谱跳转', routePath: '/design/5VK' },
   { id: 'ik_', title: '食谱跳转2', routePath: '/design/ik_' },
   { id: 'tAa', title: '咸了吗总页面', routePath: '/design/tAa', customComponent: 'Page_tAa.vue' },

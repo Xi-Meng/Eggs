@@ -2,8 +2,9 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { saltPresetOverlayLayouts } from '@/config/saltPresetOverlayLayout'
-import { cookPresetOptions, type CookPresetOption } from '@/data/cookPresetCatalog'
+import { type CookPresetOption, useCookPresetCatalog } from '@/data/cookPresetCatalog'
 import { useSaltPresetSession } from '@/composables/useSaltPresetSession'
+import { startCookSession } from '@/services/cookApi'
 
 const props = defineProps<{
   pageId: 'AnX' | 'wXj'
@@ -13,10 +14,11 @@ const props = defineProps<{
 const layout = computed(() => saltPresetOverlayLayouts[props.pageId])
 const menuOpen = ref(false)
 const elapsedSeconds = ref(0)
+const isSubmitting = ref(false)
 const router = useRouter()
 const route = useRoute()
-const { activePreset, presetKey, setPresetKey, startCooking, finishCooking, startedAt } =
-  useSaltPresetSession()
+const { cookPresetOptions, loadCookPresetOptions } = useCookPresetCatalog()
+const { activePreset, setPresetKey, startCooking, finishCooking, startedAt } = useSaltPresetSession()
 
 let timerId: number | null = null
 
@@ -41,13 +43,47 @@ function closeMenu() {
   menuOpen.value = false
 }
 
-function handleStartCooking() {
-  startCooking(presetKey.value || cookPresetOptions[0]?.key)
-  menuOpen.value = false
-  router.push({
-    path: '/design/wXj',
-    query: route.query,
-  })
+async function handleStartCooking() {
+  if (isSubmitting.value) {
+    return
+  }
+
+  const options =
+    cookPresetOptions.value.length > 0 ? cookPresetOptions.value : await loadCookPresetOptions()
+  const selectedPreset = activePreset.value ?? options[0] ?? null
+
+  if (!selectedPreset || selectedPreset.foodId === null) {
+    window.alert('当前食物没有可用的 foodId，暂时无法开始烹饪')
+    return
+  }
+
+  isSubmitting.value = true
+
+  try {
+    const result = await startCookSession({
+      foodId: selectedPreset.foodId,
+      userId: 1,
+      deviceSn: 'ESP32-001',
+    })
+
+    if (result.code !== 200 || result.data === null || result.data === undefined) {
+      throw new Error(result.msg || '开始烹饪失败')
+    }
+
+    startCooking({
+      presetKey: selectedPreset.key,
+      historyId: result.data,
+    })
+    menuOpen.value = false
+    router.push({
+      path: '/design/wXj',
+      query: route.query,
+    })
+  } catch (error) {
+    window.alert(error instanceof Error ? error.message : '开始烹饪失败，请稍后再试')
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 function handleFinishCooking() {
@@ -82,6 +118,8 @@ function startTimer() {
 }
 
 onMounted(() => {
+  loadCookPresetOptions()
+
   if (props.mode === 'end') {
     startTimer()
   }

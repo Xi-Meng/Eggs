@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useCookPresetSession } from '@/composables/useCookPresetSession'
 import { temperatureOverlayLayouts } from '@/config/temperatureOverlayLayout'
 import { useRealtimeTemperature } from '@/composables/useRealtimeTemperature'
 
@@ -8,6 +9,7 @@ const props = defineProps<{
 }>()
 
 const pageLayout = computed(() => temperatureOverlayLayouts[props.pageId]!)
+const { historyId } = useCookPresetSession()
 const liveItem = computed(() => {
   const item = pageLayout.value.items.find((entry) => entry.staticValue === undefined) ?? pageLayout.value.items[0]
 
@@ -18,7 +20,10 @@ const liveItem = computed(() => {
   return item
 })
 
-const { error, formattedTemperature, isLoading, latestPoint } = useRealtimeTemperature({})
+const resolvedHistoryId = computed(() => historyId.value ?? undefined)
+const { error, formattedTemperature, isLoading, latestPoint } = useRealtimeTemperature({
+  historyId: resolvedHistoryId,
+})
 
 function getDisplayParts(raw: string) {
   const match = raw.match(/^(.+?)(°C|℃)$/)

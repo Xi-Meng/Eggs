@@ -1,31 +1,53 @@
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  toValue,
+  watch,
+  type MaybeRefOrGetter,
+} from 'vue'
 import { getDetectHistoryId, getDetectPollIntervalMs } from '@/config/runtimeConfig'
-import { getDetectCurve, type DetectCurvePoint } from '@/services/detectApi'
+import { getDetectStatus, type DetectStatusPoint } from '@/services/detectApi'
 
 export interface UseRealtimeDetectFeedOptions {
-  historyId?: string | number
-  pollInterval?: number
-}
-
-function getLatestPoint(points: DetectCurvePoint[]) {
-  return (
-    [...points]
-      .sort((a, b) => new Date(b.collectTime).getTime() - new Date(a.collectTime).getTime())[0] ??
-    null
-  )
+  historyId?: MaybeRefOrGetter<string | number | undefined | null>
+  pollInterval?: MaybeRefOrGetter<number | undefined | null>
 }
 
 export function useRealtimeDetectFeed(options: UseRealtimeDetectFeedOptions = {}) {
-  const points = ref<DetectCurvePoint[]>([])
-  const latestPoint = ref<DetectCurvePoint | null>(null)
+  const points = ref<DetectStatusPoint[]>([])
+  const latestPoint = ref<DetectStatusPoint | null>(null)
   const isLoading = ref(true)
   const error = ref('')
   const isRefreshing = ref(false)
 
-  const resolvedHistoryId = computed(() => options.historyId ?? getDetectHistoryId())
-  const resolvedPollInterval = computed(() => options.pollInterval ?? getDetectPollIntervalMs())
+  const resolvedHistoryId = computed(() => {
+    const historyId = toValue(options.historyId)
+    return historyId ?? getDetectHistoryId()
+  })
+
+  const resolvedPollInterval = computed(() => {
+    const pollInterval = toValue(options.pollInterval)
+    return typeof pollInterval === 'number' && pollInterval > 0
+      ? pollInterval
+      : getDetectPollIntervalMs()
+  })
 
   let timer: number | null = null
+  let hasMounted = false
+
+  function stopTimer() {
+    if (timer !== null) {
+      window.clearInterval(timer)
+      timer = null
+    }
+  }
+
+  function startTimer() {
+    stopTimer()
+    timer = window.setInterval(refresh, resolvedPollInterval.value)
+  }
 
   async function refresh() {
     if (isRefreshing.value) {
@@ -35,14 +57,14 @@ export function useRealtimeDetectFeed(options: UseRealtimeDetectFeedOptions = {}
     isRefreshing.value = true
 
     try {
-      const result = await getDetectCurve(resolvedHistoryId.value)
+      const result = await getDetectStatus(resolvedHistoryId.value)
 
       if (result.code !== 200) {
         throw new Error(result.msg || '实时数据获取失败')
       }
 
-      points.value = Array.isArray(result.data) ? result.data : []
-      latestPoint.value = points.value.length > 0 ? getLatestPoint(points.value) : null
+      latestPoint.value = result.data ?? null
+      points.value = latestPoint.value ? [latestPoint.value] : []
       error.value = ''
     } catch (reason) {
       error.value = reason instanceof Error ? reason.message : '实时数据获取失败'
@@ -53,14 +75,30 @@ export function useRealtimeDetectFeed(options: UseRealtimeDetectFeedOptions = {}
   }
 
   onMounted(() => {
+    hasMounted = true
     refresh()
-    timer = window.setInterval(refresh, resolvedPollInterval.value)
+    startTimer()
   })
 
   onBeforeUnmount(() => {
-    if (timer !== null) {
-      window.clearInterval(timer)
+    stopTimer()
+  })
+
+  watch(resolvedHistoryId, (nextHistoryId, previousHistoryId) => {
+    if (!hasMounted || nextHistoryId === previousHistoryId) {
+      return
     }
+
+    isLoading.value = true
+    refresh()
+  })
+
+  watch(resolvedPollInterval, (nextInterval, previousInterval) => {
+    if (!hasMounted || nextInterval === previousInterval) {
+      return
+    }
+
+    startTimer()
   })
 
   return {

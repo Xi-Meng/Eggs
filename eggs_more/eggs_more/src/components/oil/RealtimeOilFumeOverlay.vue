@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useActiveCookingHistoryId } from '@/composables/useActiveCookingHistoryId'
 import { oilFumeOverlayLayouts } from '@/config/oilFumeOverlayLayout'
 import { useRealtimeDetectFeed } from '@/composables/useRealtimeDetectFeed'
 
@@ -8,7 +9,10 @@ const props = defineProps<{
 }>()
 
 const items = computed(() => oilFumeOverlayLayouts[props.pageId] ?? [])
-const { latestPoint } = useRealtimeDetectFeed()
+const { activeHistoryId } = useActiveCookingHistoryId()
+const { latestPoint } = useRealtimeDetectFeed({
+  historyId: activeHistoryId,
+})
 
 const formattedValue = computed(() => {
   if (!latestPoint.value) {

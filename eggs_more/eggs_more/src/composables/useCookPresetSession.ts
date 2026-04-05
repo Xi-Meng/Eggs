@@ -1,8 +1,13 @@
 import { computed, reactive } from 'vue'
-import { cookPresetOptions } from '@/data/cookPresetCatalog'
+import {
+  findCookPresetOptionByKey,
+  getDefaultCookPresetKey,
+  normalizeCookPresetKey,
+} from '@/data/cookPresetCatalog'
 
 interface CookPresetSessionState {
   presetKey: string
+  historyId: string | number | null
   startedAt: number | null
   finishedAt: number | null
   rating: string
@@ -11,22 +16,11 @@ interface CookPresetSessionState {
 
 const STORAGE_KEY = 'eggs-cook-preset-session'
 
-function getDefaultPresetKey() {
-  return cookPresetOptions[0]?.key ?? ''
-}
-
-function normalizePresetKey(rawPresetKey: string) {
-  if (cookPresetOptions.some((option) => option.key === rawPresetKey)) {
-    return rawPresetKey
-  }
-
-  return getDefaultPresetKey()
-}
-
 function readStoredSession(): CookPresetSessionState {
   if (typeof window === 'undefined') {
     return {
-      presetKey: getDefaultPresetKey(),
+      presetKey: getDefaultCookPresetKey(),
+      historyId: null,
       startedAt: null,
       finishedAt: null,
       rating: '',
@@ -39,7 +33,8 @@ function readStoredSession(): CookPresetSessionState {
 
     if (!raw) {
       return {
-        presetKey: getDefaultPresetKey(),
+        presetKey: getDefaultCookPresetKey(),
+        historyId: null,
         startedAt: null,
         finishedAt: null,
         rating: '',
@@ -50,7 +45,11 @@ function readStoredSession(): CookPresetSessionState {
     const parsed = JSON.parse(raw) as Partial<CookPresetSessionState>
 
     return {
-      presetKey: normalizePresetKey(parsed.presetKey ?? ''),
+      presetKey: normalizeCookPresetKey(parsed.presetKey ?? ''),
+      historyId:
+        typeof parsed.historyId === 'string' || typeof parsed.historyId === 'number'
+          ? parsed.historyId
+          : null,
       startedAt: typeof parsed.startedAt === 'number' ? parsed.startedAt : null,
       finishedAt: typeof parsed.finishedAt === 'number' ? parsed.finishedAt : null,
       rating: typeof parsed.rating === 'string' ? parsed.rating : '',
@@ -58,7 +57,8 @@ function readStoredSession(): CookPresetSessionState {
     }
   } catch {
     return {
-      presetKey: getDefaultPresetKey(),
+      presetKey: getDefaultCookPresetKey(),
+      historyId: null,
       startedAt: null,
       finishedAt: null,
       rating: '',
@@ -78,6 +78,7 @@ function persistSession() {
     STORAGE_KEY,
     JSON.stringify({
       presetKey: sessionState.presetKey,
+      historyId: sessionState.historyId,
       startedAt: sessionState.startedAt,
       finishedAt: sessionState.finishedAt,
       rating: sessionState.rating,
@@ -87,7 +88,7 @@ function persistSession() {
 }
 
 function ensureValidSession() {
-  const normalizedKey = normalizePresetKey(sessionState.presetKey)
+  const normalizedKey = normalizeCookPresetKey(sessionState.presetKey)
 
   if (normalizedKey !== sessionState.presetKey) {
     sessionState.presetKey = normalizedKey
@@ -98,25 +99,21 @@ function ensureValidSession() {
 export function useCookPresetSession() {
   ensureValidSession()
 
-  const activePreset = computed(
-    () =>
-      cookPresetOptions.find((option) => option.key === sessionState.presetKey) ??
-      cookPresetOptions[0] ??
-      null,
-  )
+  const activePreset = computed(() => findCookPresetOptionByKey(sessionState.presetKey))
 
   function setPresetKey(presetKey: string) {
-    sessionState.presetKey = normalizePresetKey(presetKey)
+    sessionState.presetKey = normalizeCookPresetKey(presetKey)
     persistSession()
   }
 
-  function startCooking(presetKey?: string) {
-    if (presetKey) {
-      setPresetKey(presetKey)
+  function startCooking(options: { presetKey?: string; historyId?: string | number | null } = {}) {
+    if (options.presetKey) {
+      sessionState.presetKey = normalizeCookPresetKey(options.presetKey)
     } else if (!sessionState.presetKey) {
-      sessionState.presetKey = getDefaultPresetKey()
+      sessionState.presetKey = getDefaultCookPresetKey()
     }
 
+    sessionState.historyId = options.historyId ?? null
     sessionState.startedAt = Date.now()
     sessionState.finishedAt = null
     sessionState.rating = ''
@@ -146,6 +143,7 @@ export function useCookPresetSession() {
   return {
     activePreset,
     presetKey: computed(() => sessionState.presetKey),
+    historyId: computed(() => sessionState.historyId),
     startedAt: computed(() => sessionState.startedAt),
     finishedAt: computed(() => sessionState.finishedAt),
     rating: computed(() => sessionState.rating),

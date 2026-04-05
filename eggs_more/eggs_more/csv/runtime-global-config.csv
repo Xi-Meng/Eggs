@@ -1,4 +1,4 @@
 配置项,值,说明
 API_BASE_URL,http://q7b68f9f.natappfree.cc,公网接口根地址
-DETECT_HISTORY_ID,2040365833505034242,detect/curve 实时数据 historyId
-DETECT_POLL_INTERVAL_MS,50,实时轮询间隔毫秒
+DETECT_HISTORY_ID,2040365833505034242,detect/status 实时数据 historyId
+DETECT_POLL_INTERVAL_MS,500,实时轮询间隔毫秒

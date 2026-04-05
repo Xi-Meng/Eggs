@@ -1,9 +1,9 @@
-import { computed } from 'vue'
+import { computed, type MaybeRefOrGetter } from 'vue'
 import { useRealtimeDetectFeed } from './useRealtimeDetectFeed'
 
 export interface UseRealtimeTemperatureOptions {
-  historyId?: string | number
-  pollInterval?: number
+  historyId?: MaybeRefOrGetter<string | number | undefined | null>
+  pollInterval?: MaybeRefOrGetter<number | undefined | null>
 }
 
 function formatTemperature(value: number) {

@@ -2,7 +2,7 @@ import runtimeGlobalConfigCsv from '../../csv/runtime-global-config.csv?raw'
 
 const DEFAULT_API_BASE_URL = 'http://q7b68f9f.natappfree.cc'
 const DEFAULT_DETECT_HISTORY_ID = '2040365833505034242'
-const DEFAULT_DETECT_POLL_INTERVAL_MS = 50
+const DEFAULT_DETECT_POLL_INTERVAL_MS = 1000
 
 function parseCsvLine(line: string) {
   const cells: string[] = []

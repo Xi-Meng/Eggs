@@ -5,6 +5,7 @@
 - 温度框：`src/config/temperatureOverlayLayout.ts`
 - 咸度框：`src/config/saltLevelOverlayLayout.ts`
 - 油烟框：`src/config/oilFumeOverlayLayout.ts`
+- 顶部图片：`src/components/branding/TopBrandImageOverlay.vue`
 - 全局接口/HistoryId：`csv/runtime-global-config.csv`
 
 常改字段：
@@ -12,6 +13,7 @@
 - 温度框：`temperatureTop`、`temperatureLeft`、`temperatureWidth`、`temperatureHeight`、`temperatureFontSize`
 - 咸度框：`top`、`left`、`width`、`height`、`fontSize`
 - 油烟框：`top`、`left`、`width`、`height`、`fontSize`
+- 顶部图片：`top`、`left`、`width`
 - 外观：`backgroundColor`、`textColor`、`borderRadius`
 
 ## 温度框
@@ -173,6 +175,34 @@
   - `left: 157`
   - `width: 132`
   - `height: 26`
+
+## 顶部图片
+
+配置文件：`src/config/topBrandImageLayout.ts`
+
+这张图用在：
+
+- `otl`
+- `Mln`
+- `bQv`
+
+### 开始页 `otl`
+
+- `top: 200`
+- `left: 0`
+- `width: 375`
+
+### 注册页 `Mln`
+
+- `top: 200`
+- `left: 0`
+- `width: 375`
+
+### 登录页 `bQv`
+
+- `top: 200`
+- `left: 0`
+- `width: 375`
 
 ## 备注
 
