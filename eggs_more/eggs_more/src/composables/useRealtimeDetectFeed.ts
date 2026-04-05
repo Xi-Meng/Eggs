@@ -57,6 +57,8 @@ export function useRealtimeDetectFeed(options: UseRealtimeDetectFeedOptions = {}
     isRefreshing.value = true
 
     try {
+      console.info('[eggs][detect-status] polling historyId =', resolvedHistoryId.value)
+
       const result = await getDetectStatus(resolvedHistoryId.value)
 
       if (result.code !== 200) {
@@ -89,6 +91,7 @@ export function useRealtimeDetectFeed(options: UseRealtimeDetectFeedOptions = {}
       return
     }
 
+    console.info('[eggs][detect-status] switched historyId =', nextHistoryId)
     isLoading.value = true
     refresh()
   })
