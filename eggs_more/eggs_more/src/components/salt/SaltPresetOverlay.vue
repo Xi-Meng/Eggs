@@ -1,25 +1,22 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { cookPresetOverlayLayout } from '@/config/cookPresetOverlayLayout'
+import { saltPresetOverlayLayouts } from '@/config/saltPresetOverlayLayout'
 import { cookPresetOptions, type CookPresetOption } from '@/data/cookPresetCatalog'
-import { useCookPresetSession } from '@/composables/useCookPresetSession'
+import { useSaltPresetSession } from '@/composables/useSaltPresetSession'
 
-const props = withDefaults(
-  defineProps<{
-    mode?: 'start' | 'end'
-  }>(),
-  {
-    mode: 'start',
-  },
-)
+const props = defineProps<{
+  pageId: 'AnX' | 'wXj'
+  mode: 'start' | 'end'
+}>()
 
+const layout = computed(() => saltPresetOverlayLayouts[props.pageId])
 const menuOpen = ref(false)
 const elapsedSeconds = ref(0)
 const router = useRouter()
 const route = useRoute()
 const { activePreset, presetKey, setPresetKey, startCooking, finishCooking, startedAt } =
-  useCookPresetSession()
+  useSaltPresetSession()
 
 let timerId: number | null = null
 
@@ -48,7 +45,7 @@ function handleStartCooking() {
   startCooking(presetKey.value || cookPresetOptions[0]?.key)
   menuOpen.value = false
   router.push({
-    path: '/design/4-t',
+    path: '/design/wXj',
     query: route.query,
   })
 }
@@ -57,7 +54,7 @@ function handleFinishCooking() {
   finishCooking()
   menuOpen.value = false
   router.push({
-    path: '/design/MTDir',
+    path: '/design/4Ej',
     query: route.query,
   })
 }
@@ -106,15 +103,15 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="cook-preset-overlay">
+  <div class="salt-preset-overlay">
     <button
       class="search-hit"
       type="button"
       :style="{
-        top: `${cookPresetOverlayLayout.searchBox.top}px`,
-        left: `${cookPresetOverlayLayout.searchBox.left}px`,
-        width: `${cookPresetOverlayLayout.searchBox.width}px`,
-        height: `${cookPresetOverlayLayout.searchBox.height}px`,
+        top: `${layout.searchBox.top}px`,
+        left: `${layout.searchBox.left}px`,
+        width: `${layout.searchBox.width}px`,
+        height: `${layout.searchBox.height}px`,
       }"
       aria-label="打开食物选择"
       @click="toggleMenu"
@@ -124,10 +121,10 @@ onBeforeUnmount(() => {
       v-if="activePreset"
       class="search-value"
       :style="{
-        top: `${cookPresetOverlayLayout.searchValueBox.top}px`,
-        left: `${cookPresetOverlayLayout.searchValueBox.left}px`,
-        width: `${cookPresetOverlayLayout.searchValueBox.width}px`,
-        minHeight: `${cookPresetOverlayLayout.searchValueBox.height}px`,
+        top: `${layout.searchValueBox.top}px`,
+        left: `${layout.searchValueBox.left}px`,
+        width: `${layout.searchValueBox.width}px`,
+        minHeight: `${layout.searchValueBox.height}px`,
       }"
     >
       {{ activePreset.label }}
@@ -145,10 +142,10 @@ onBeforeUnmount(() => {
       v-if="menuOpen"
       class="preset-menu"
       :style="{
-        top: `${cookPresetOverlayLayout.dropdownBox.top}px`,
-        left: `${cookPresetOverlayLayout.dropdownBox.left}px`,
-        width: `${cookPresetOverlayLayout.dropdownBox.width}px`,
-        maxHeight: `${cookPresetOverlayLayout.dropdownBox.height}px`,
+        top: `${layout.dropdownBox.top}px`,
+        left: `${layout.dropdownBox.left}px`,
+        width: `${layout.dropdownBox.width}px`,
+        maxHeight: `${layout.dropdownBox.height}px`,
       }"
     >
       <button
@@ -156,7 +153,7 @@ onBeforeUnmount(() => {
         :key="option.key"
         class="preset-option"
         type="button"
-        :style="{ minHeight: `${cookPresetOverlayLayout.dropdownItemHeight}px` }"
+        :style="{ minHeight: `${layout.dropdownItemHeight}px` }"
         @click="selectPreset(option)"
       >
         {{ option.label }}
@@ -167,10 +164,10 @@ onBeforeUnmount(() => {
       <p
         class="field-value food-value"
         :style="{
-          top: `${cookPresetOverlayLayout.foodValueBox.top}px`,
-          left: `${cookPresetOverlayLayout.foodValueBox.left}px`,
-          width: `${cookPresetOverlayLayout.foodValueBox.width}px`,
-          minHeight: `${cookPresetOverlayLayout.foodValueBox.height}px`,
+          top: `${layout.foodValueBox.top}px`,
+          left: `${layout.foodValueBox.left}px`,
+          width: `${layout.foodValueBox.width}px`,
+          minHeight: `${layout.foodValueBox.height}px`,
         }"
       >
         {{ activePreset.label }}
@@ -179,10 +176,10 @@ onBeforeUnmount(() => {
       <p
         class="field-value"
         :style="{
-          top: `${cookPresetOverlayLayout.referenceTemperatureBox.top}px`,
-          left: `${cookPresetOverlayLayout.referenceTemperatureBox.left}px`,
-          width: `${cookPresetOverlayLayout.referenceTemperatureBox.width}px`,
-          minHeight: `${cookPresetOverlayLayout.referenceTemperatureBox.height}px`,
+          top: `${layout.referenceValueBox.top}px`,
+          left: `${layout.referenceValueBox.left}px`,
+          width: `${layout.referenceValueBox.width}px`,
+          minHeight: `${layout.referenceValueBox.height}px`,
         }"
       >
         {{ activePreset.referenceTemperature }}
@@ -191,10 +188,10 @@ onBeforeUnmount(() => {
       <p
         class="field-value"
         :style="{
-          top: `${cookPresetOverlayLayout.cookingTimeBox.top}px`,
-          left: `${cookPresetOverlayLayout.cookingTimeBox.left}px`,
-          width: `${cookPresetOverlayLayout.cookingTimeBox.width}px`,
-          minHeight: `${cookPresetOverlayLayout.cookingTimeBox.height}px`,
+          top: `${layout.cookingTimeBox.top}px`,
+          left: `${layout.cookingTimeBox.left}px`,
+          width: `${layout.cookingTimeBox.width}px`,
+          minHeight: `${layout.cookingTimeBox.height}px`,
         }"
       >
         {{ activePreset.cookingTime }}
@@ -204,10 +201,10 @@ onBeforeUnmount(() => {
         v-if="props.mode === 'end'"
         class="field-value elapsed-value"
         :style="{
-          top: `${cookPresetOverlayLayout.elapsedTimeBox.top}px`,
-          left: `${cookPresetOverlayLayout.elapsedTimeBox.left}px`,
-          width: `${cookPresetOverlayLayout.elapsedTimeBox.width}px`,
-          minHeight: `${cookPresetOverlayLayout.elapsedTimeBox.height}px`,
+          top: `${layout.elapsedTimeBox.top}px`,
+          left: `${layout.elapsedTimeBox.left}px`,
+          width: `${layout.elapsedTimeBox.width}px`,
+          minHeight: `${layout.elapsedTimeBox.height}px`,
         }"
       >
         {{ formattedElapsedTime }}
@@ -215,37 +212,22 @@ onBeforeUnmount(() => {
     </template>
 
     <button
-      v-if="props.mode === 'start'"
-      class="start-hit"
+      class="action-hit"
       type="button"
       :style="{
-        top: `${cookPresetOverlayLayout.startButtonBox.top}px`,
-        left: `${cookPresetOverlayLayout.startButtonBox.left}px`,
-        width: `${cookPresetOverlayLayout.startButtonBox.width}px`,
-        height: `${cookPresetOverlayLayout.startButtonBox.height}px`,
+        top: `${layout.actionButtonBox.top}px`,
+        left: `${layout.actionButtonBox.left}px`,
+        width: `${layout.actionButtonBox.width}px`,
+        height: `${layout.actionButtonBox.height}px`,
       }"
-      aria-label="开始烹饪"
-      @click="handleStartCooking"
-    />
-
-    <button
-      v-if="props.mode === 'end'"
-      class="start-hit"
-      type="button"
-      :style="{
-        top: `${cookPresetOverlayLayout.finishButtonBox.top}px`,
-        left: `${cookPresetOverlayLayout.finishButtonBox.left}px`,
-        width: `${cookPresetOverlayLayout.finishButtonBox.width}px`,
-        height: `${cookPresetOverlayLayout.finishButtonBox.height}px`,
-      }"
-      aria-label="结束烹饪"
-      @click="handleFinishCooking"
+      :aria-label="props.mode === 'start' ? '开始烹饪' : '结束烹饪'"
+      @click="props.mode === 'start' ? handleStartCooking() : handleFinishCooking()"
     />
   </div>
 </template>
 
 <style scoped>
-.cook-preset-overlay {
+.salt-preset-overlay {
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -255,14 +237,14 @@ onBeforeUnmount(() => {
 .menu-backdrop,
 .preset-menu,
 .preset-option,
-.start-hit {
+.action-hit {
   pointer-events: auto;
 }
 
 .search-hit,
 .menu-backdrop,
 .preset-option,
-.start-hit {
+.action-hit {
   appearance: none;
   border: 0;
   background: transparent;
@@ -270,7 +252,7 @@ onBeforeUnmount(() => {
 }
 
 .search-hit,
-.start-hit,
+.action-hit,
 .search-value,
 .preset-menu,
 .field-value {
@@ -316,8 +298,8 @@ onBeforeUnmount(() => {
   justify-content: flex-start;
   padding: 0 14px;
   border-radius: 12px;
-  background: rgba(244, 227, 127, 0.62);
-  color: #6b5723;
+  background: rgba(215, 239, 214, 0.95);
+  color: #4d6a3b;
   font-size: 16px;
   font-weight: 700;
   font-family: 'HuXiaoBoNanShen-Regular', 'PingFang SC', sans-serif;
@@ -326,7 +308,7 @@ onBeforeUnmount(() => {
 .field-value {
   z-index: 6;
   margin: 0;
-  color: #6b5d32;
+  color: #56633d;
   font-size: 18px;
   font-weight: 700;
   line-height: 1.2;
@@ -334,12 +316,7 @@ onBeforeUnmount(() => {
   font-family: 'HuXiaoBoNanShen-Regular', 'PingFang SC', sans-serif;
 }
 
-.food-value {
-  letter-spacing: 0.03em;
-}
-
 .elapsed-value {
   text-align: left;
-  color: #6f5b31;
 }
 </style>

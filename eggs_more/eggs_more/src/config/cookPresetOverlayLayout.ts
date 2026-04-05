@@ -13,12 +13,15 @@ export interface CookPresetOverlayLayout {
   foodValueBox: OverlayBoxLayout
   referenceTemperatureBox: OverlayBoxLayout
   cookingTimeBox: OverlayBoxLayout
+  startButtonBox: OverlayBoxLayout
+  finishButtonBox: OverlayBoxLayout
+  elapsedTimeBox: OverlayBoxLayout
 }
 
 export const cookPresetOverlayLayout: CookPresetOverlayLayout = {
   searchBox: {
     top: 95,
-    left: 49,
+    left: 65,
     width: 283,
     height: 37,
   },
@@ -52,5 +55,23 @@ export const cookPresetOverlayLayout: CookPresetOverlayLayout = {
     left: 196,
     width: 96,
     height: 24,
+  },
+  startButtonBox: {
+    top: 359,
+    left: 134,
+    width: 114,
+    height: 36,
+  },
+  finishButtonBox: {
+    top: 359,
+    left: 134,
+    width: 114,
+    height: 36,
+  },
+  elapsedTimeBox: {
+    top: 652,
+    left: 186,
+    width: 108,
+    height: 22,
   },
 }

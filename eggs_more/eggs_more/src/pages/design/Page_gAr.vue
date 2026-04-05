@@ -7,6 +7,6 @@ import RealtimeTemperatureOverlay from '@/components/temperature/RealtimeTempera
 <template>
   <DesignPageShell frame-id="gAr" title="熟了吗1开始">
     <RealtimeTemperatureOverlay page-id="gAr" />
-    <CookPresetOverlay />
+    <CookPresetOverlay mode="start" />
   </DesignPageShell>
 </template>
