@@ -4,6 +4,7 @@ export interface CookPresetOption {
   key: string
   label: string
   referenceTemperature: string
+  referenceSaltLevel: string
   cookingTime: string
 }
 
@@ -12,18 +13,21 @@ const fallbackCookPresetOptions: CookPresetOption[] = [
     key: 'preset-1',
     label: '溏心蛋',
     referenceTemperature: '75°C',
+    referenceSaltLevel: '0.4~0.5%',
     cookingTime: '8分钟',
   },
   {
     key: 'preset-2',
     label: '牛肉',
     referenceTemperature: '90°C',
+    referenceSaltLevel: '0.4~0.5%',
     cookingTime: '15分钟',
   },
   {
     key: 'preset-3',
     label: '鸡肉',
     referenceTemperature: '85°C',
+    referenceSaltLevel: '0.4~0.5%',
     cookingTime: '12分钟',
   },
 ]
@@ -72,6 +76,7 @@ function parseCookPresetOptions(csvText: string) {
   const headers = parseCsvLine(lines[0])
   const categoryIndex = headers.indexOf('类别')
   const referenceTemperatureIndex = headers.indexOf('参考温度')
+  const referenceSaltLevelIndex = headers.indexOf('参考盐度')
   const cookingTimeIndex = headers.indexOf('烹饪时间')
 
   if (categoryIndex === -1 || referenceTemperatureIndex === -1 || cookingTimeIndex === -1) {
@@ -84,6 +89,8 @@ function parseCookPresetOptions(csvText: string) {
       const cells = parseCsvLine(line)
       const label = cells[categoryIndex]?.trim() ?? ''
       const referenceTemperature = cells[referenceTemperatureIndex]?.trim() ?? ''
+      const referenceSaltLevel =
+        referenceSaltLevelIndex === -1 ? '' : cells[referenceSaltLevelIndex]?.trim() ?? ''
       const cookingTime = cells[cookingTimeIndex]?.trim() ?? ''
 
       if (!label) {
@@ -94,6 +101,7 @@ function parseCookPresetOptions(csvText: string) {
         key: `preset-${index + 1}`,
         label,
         referenceTemperature,
+        referenceSaltLevel: referenceSaltLevel || referenceTemperature,
         cookingTime,
       } satisfies CookPresetOption
     })

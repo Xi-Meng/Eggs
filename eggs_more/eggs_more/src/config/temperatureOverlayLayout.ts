@@ -28,7 +28,6 @@ export const temperatureOverlayLayouts: Record<string, TemperatureOverlayLayout>
     items: [
       {
         key: 'device1-live',
-        historyId: '2040365833505034242',
         temperatureTop: 200,
         temperatureLeft: 145,
         temperatureWidth: 80,
@@ -74,7 +73,6 @@ export const temperatureOverlayLayouts: Record<string, TemperatureOverlayLayout>
     items: [
       {
         key: 'device1-live',
-        historyId: '2040365833505034242',
         temperatureTop: 250,
         temperatureLeft: 114,
         temperatureWidth: 150,
@@ -91,7 +89,6 @@ export const temperatureOverlayLayouts: Record<string, TemperatureOverlayLayout>
     items: [
       {
         key: 'device1-live',
-        historyId: '2040365833505034242',
         temperatureTop: 260,
         temperatureLeft: 108,
         temperatureWidth: 150,

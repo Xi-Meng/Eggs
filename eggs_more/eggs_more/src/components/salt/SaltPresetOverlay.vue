@@ -182,7 +182,7 @@ onBeforeUnmount(() => {
           minHeight: `${layout.referenceValueBox.height}px`,
         }"
       >
-        {{ activePreset.referenceTemperature }}
+        {{ activePreset.referenceSaltLevel }}
       </p>
 
       <p

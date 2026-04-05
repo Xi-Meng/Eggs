@@ -1,18 +1,35 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { saltLevelOverlayLayouts } from '@/config/saltLevelOverlayLayout'
+import { useRealtimeDetectFeed } from '@/composables/useRealtimeDetectFeed'
 
 const props = defineProps<{
   pageId: 'tAa' | 'ytA95' | 'AnX' | 'wXj'
 }>()
 
 const items = computed(() => saltLevelOverlayLayouts[props.pageId] ?? [])
+const { latestPoint } = useRealtimeDetectFeed()
+
+function formatSaltValue(value: number) {
+  return `${value.toFixed(1)}%`
+}
+
+const overlayItems = computed(() =>
+  items.value.map((item) => ({
+    ...item,
+    displayValue: item.isLive
+      ? latestPoint.value
+        ? formatSaltValue(latestPoint.value.salt)
+        : '--%'
+      : item.value ?? '--%',
+  })),
+)
 </script>
 
 <template>
   <div class="salt-level-overlay">
     <p
-      v-for="item in items"
+      v-for="item in overlayItems"
       :key="item.key"
       class="salt-value"
       :style="{
@@ -27,7 +44,7 @@ const items = computed(() => saltLevelOverlayLayouts[props.pageId] ?? [])
         borderRadius: `${item.borderRadius}px`,
       }"
     >
-      {{ item.value }}
+      {{ item.displayValue }}
     </p>
   </div>
 </template>

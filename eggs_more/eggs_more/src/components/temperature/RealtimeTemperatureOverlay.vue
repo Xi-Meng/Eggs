@@ -9,7 +9,7 @@ const props = defineProps<{
 
 const pageLayout = computed(() => temperatureOverlayLayouts[props.pageId]!)
 const liveItem = computed(() => {
-  const item = pageLayout.value.items.find((entry) => entry.historyId) ?? pageLayout.value.items[0]
+  const item = pageLayout.value.items.find((entry) => entry.staticValue === undefined) ?? pageLayout.value.items[0]
 
   if (!item) {
     throw new Error(`Missing temperature overlay layout for ${props.pageId}`)
@@ -18,10 +18,7 @@ const liveItem = computed(() => {
   return item
 })
 
-const { error, formattedTemperature, isLoading, latestPoint } = useRealtimeTemperature({
-  historyId: liveItem.value.historyId!,
-  pollInterval: 3000,
-})
+const { error, formattedTemperature, isLoading, latestPoint } = useRealtimeTemperature({})
 
 function getDisplayParts(raw: string) {
   const match = raw.match(/^(.+?)(°C|℃)$/)
@@ -41,7 +38,7 @@ function getDisplayParts(raw: string) {
 
 const overlayItems = computed(() =>
   pageLayout.value.items.map((item) => {
-    const rawValue = item.historyId ? formattedTemperature.value : item.staticValue ?? '--°C'
+    const rawValue = item.staticValue === undefined ? formattedTemperature.value : item.staticValue
 
     return {
       ...item,

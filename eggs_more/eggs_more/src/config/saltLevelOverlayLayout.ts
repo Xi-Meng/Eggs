@@ -1,6 +1,7 @@
 export interface SaltLevelOverlayItemLayout {
   key: string
-  value: string
+  value?: string
+  isLive?: boolean
   top: number
   left: number
   width: number
@@ -16,8 +17,8 @@ export const saltLevelOverlayLayouts: Record<string, SaltLevelOverlayItemLayout[
   tAa: [
     {
       key: 'device1-salt',
-      value: '1.2%',
-      top: 192,
+      isLive: true,
+      top: 195,
       left: 143,
       width: 74,
       height: 28,
@@ -30,7 +31,7 @@ export const saltLevelOverlayLayouts: Record<string, SaltLevelOverlayItemLayout[
     {
       key: 'device2-salt',
       value: '0.9%',
-      top: 322,
+      top: 324,
       left: 145,
       width: 74,
       height: 28,
@@ -43,7 +44,7 @@ export const saltLevelOverlayLayouts: Record<string, SaltLevelOverlayItemLayout[
     {
       key: 'device3-salt',
       value: '1.8%',
-      top: 444,
+      top: 445,
       left: 145,
       width: 76,
       height: 28,
@@ -57,8 +58,8 @@ export const saltLevelOverlayLayouts: Record<string, SaltLevelOverlayItemLayout[
   ytA95: [
     {
       key: 'device1-salt',
-      value: '1.2%',
-      top: 192,
+      isLive: true,
+      top: 300,
       left: 143,
       width: 74,
       height: 28,
@@ -98,11 +99,11 @@ export const saltLevelOverlayLayouts: Record<string, SaltLevelOverlayItemLayout[
   AnX: [
     {
       key: 'device1-salt',
-      value: '0.9%',
-      top: 240,
-      left: 84,
-      width: 164,
-      height: 66,
+      isLive: true,
+      top: 253,
+      left: 95,
+      width: 174,
+      height: 73,
       fontSize: 42,
       fontWeight: 600,
       backgroundColor: '#eef2c0',
@@ -113,11 +114,11 @@ export const saltLevelOverlayLayouts: Record<string, SaltLevelOverlayItemLayout[
   wXj: [
     {
       key: 'device1-salt',
-      value: '0.9%',
-      top: 240,
-      left: 84,
-      width: 164,
-      height: 66,
+      isLive: true,
+      top: 253,
+      left: 95,
+      width: 174,
+      height: 73,
       fontSize: 42,
       fontWeight: 600,
       backgroundColor: '#eef2c0',
