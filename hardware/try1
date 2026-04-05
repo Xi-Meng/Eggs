@@ -1,0 +1,127 @@
+import asyncio
+import re
+import httpx
+from bleak import BleakScanner, BleakClient
+
+# ==================== 【配置信息】 ====================
+TEMP_NAME = "ESP32-C3-Temp"
+SMOKE_NAME = "ESP32-C3-Smoke"
+
+# ⚠️ 记得修改为你的 NATAPP 公网地址
+BACKEND_URL = "http://localhost:8080"
+CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+DEVICE_SN = "ESP32-001"
+
+http_client = httpx.AsyncClient()
+
+# ==================== 全局状态变量 ====================
+current_history_id = None
+current_temp = 0.0
+current_smoke = 0.0
+current_history_id = 8888888888
+
+# ==================== 核心上传逻辑 ====================
+
+# async def get_active_id():
+#     """自动获取前端开启的烹饪ID"""
+#     try:
+#         url = f"{BACKEND_URL}/api/cook/active-history?deviceSn={DEVICE_SN}"
+#         res = await http_client.get(url, timeout=5)
+#         if res.status_code == 200:
+#             data = res.json()
+#             if data.get("code") == 200:
+#                 return data.get("data")
+#     except Exception as e:
+#         print(f"📡 [等待中] 后端尚未开启烹饪任务...")
+#     return None
+async def upload_to_web():
+    global current_history_id
+    # 因为已经写死了，所以不需要 get_active_id() 了
+    
+    try:
+        params = {
+            "historyId": current_history_id, # 永远发送 8888888888
+            "temp": float(current_temp),
+            "salt": 0.0,
+            "oilFume": float(current_smoke)
+        }
+        
+        url = f"{BACKEND_URL}/detect/add-point"
+        res = await http_client.get(url, params=params, timeout=5)
+        
+        if res.status_code == 200:
+            print(f"🌐 [固定模式] ID:{current_history_id} | 温:{current_temp}°C | 同步成功")
+    except Exception as e:
+        print(f"❌ [上传失败]: {e}")
+
+
+# ==================== 蓝牙回调逻辑 ====================
+
+def temp_callback(sender, data):
+    global current_temp
+    msg = data.decode().strip()
+    nums = re.findall(r"\d+\.?\d*", msg)
+    if nums:
+        current_temp = float(nums[-1])
+        print(f"🌡️  [温度更新]: {current_temp}°C")
+        asyncio.create_task(upload_to_web())
+
+def smoke_callback(sender, data):
+    global current_smoke
+    msg = data.decode().strip()
+    nums = re.findall(r"\d+\.?\d*", msg)
+    if nums:
+        current_smoke = float(nums[-1])
+        print(f"🔥 [烟雾更新]: {current_smoke}")
+        asyncio.create_task(upload_to_web())
+
+# ==================== 蓝牙连接管理 ====================
+
+async def run_ble_client(address, name, callback):
+    """维持与单个 ESP32 的稳定连接"""
+    while True:
+        try:
+            print(f"🔍 尝试连接 {name}...")
+            async with BleakClient(address, timeout=10) as client:
+                print(f"✅ 已成功连接 {name}")
+                await client.start_notify(CHARACTERISTIC_UUID, callback)
+                while True:
+                    if not client.is_connected: break
+                    await asyncio.sleep(1)
+        except Exception as e:
+            print(f"⚠️ {name} 断开 ({e}), 3秒后尝试重连...")
+            await asyncio.sleep(3)
+
+async def main():
+    temp_addr = None
+    smoke_addr = None
+    
+    print("------------------------------------------")
+    print(f"🚀 智能厨房双路网关启动 | 目标: {BACKEND_URL}")
+    print("------------------------------------------")
+    
+    # 扫描设备
+    while not temp_addr or not smoke_addr:
+        devices = await BleakScanner.discover(timeout=3)
+        for d in devices:
+            if d.name == TEMP_NAME: temp_addr = d.address
+            elif d.name == SMOKE_NAME: smoke_addr = d.address
+        if not (temp_addr and smoke_addr):
+            print(f"⏳ 扫描中... 已找到: {'温度板 ' if temp_addr else ''}{'烟雾板' if smoke_addr else ''}")
+            await asyncio.sleep(1)
+
+    print("\n🎊 硬件已就绪，开启实时同步模式!\n")
+    
+    # 并发运行两个蓝牙连接任务
+    await asyncio.gather(
+        run_ble_client(temp_addr, TEMP_NAME, temp_callback),
+        run_ble_client(smoke_addr, SMOKE_NAME, smoke_callback)
+    )
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\n👋 用户终止程序")
+    finally:
+        asyncio.run(http_client.aclose())
