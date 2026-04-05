@@ -70,3 +70,29 @@ export const designPagesByTitle = designPages.reduce<Record<string, DesignPageMe
   acc[page.title] = list
   return acc
 }, {})
+
+const switchTargetOverridesBySourceAndTitle: Record<string, string> = {
+  'oJi::咸了吗总页面': 'tAa',
+  'a9b::结算': '4Ej',
+  'wXj::结算': '4Ej',
+  '_aX::结算': '4Ej',
+  '3Xf::结算': 'MTDir',
+  '4-t::结算': 'MTDir',
+  '0rU::结算': 'MTDir',
+}
+
+export function resolveDesignPageFromSwitch(sourceFrameId: string, targetTitle: string) {
+  const candidates = designPagesByTitle[targetTitle] ?? []
+
+  if (candidates.length <= 1) {
+    return candidates[0]
+  }
+
+  const overrideId = switchTargetOverridesBySourceAndTitle[`${sourceFrameId}::${targetTitle}`]
+
+  if (!overrideId) {
+    return undefined
+  }
+
+  return designPagesById[overrideId]
+}

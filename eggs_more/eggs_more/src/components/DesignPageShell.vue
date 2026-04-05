@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import { designPagesByTitle } from '@/data/designPages'
+import { resolveDesignPageFromSwitch } from '@/data/designPages'
 import DesignFrame from './DesignFrame.vue'
 
 const props = defineProps<{
@@ -17,13 +17,7 @@ function syncTitle(currentTitle: string) {
 }
 
 function handleFrameSwitch(frameTitle: string) {
-  const candidates = designPagesByTitle[frameTitle] ?? []
-
-  if (candidates.length !== 1) {
-    return
-  }
-
-  const target = candidates[0]
+  const target = resolveDesignPageFromSwitch(props.frameId, frameTitle)
 
   if (!target || route.path === target.routePath) {
     return
