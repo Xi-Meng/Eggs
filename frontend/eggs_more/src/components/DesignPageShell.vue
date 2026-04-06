@@ -4,10 +4,16 @@ import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { resolveDesignPageFromSwitch } from '@/data/designPages'
 import DesignFrame from './DesignFrame.vue'
 
-const props = defineProps<{
-  frameId: string
-  title: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    frameId: string
+    title: string
+    disableFrameSwitch?: boolean
+  }>(),
+  {
+    disableFrameSwitch: false,
+  },
+)
 
 const router = useRouter()
 const route = useRoute()
@@ -17,6 +23,10 @@ function syncTitle(currentTitle: string) {
 }
 
 function handleFrameSwitch(frameTitle: string) {
+  if (props.disableFrameSwitch) {
+    return
+  }
+
   const target = resolveDesignPageFromSwitch(props.frameId, frameTitle)
 
   if (!target || route.path === target.routePath) {

@@ -7,7 +7,7 @@ const groups = computed(() => [
   {
     title: '常用入口',
     pages: designPages.filter((page) =>
-      ['otl', 'Mln', 'bQv', 'oJi', 'p3Y', 'gAr', '4-t', 'ATP'].includes(page.id),
+      ['otl', 'Mln', 'bQv', 'oJi', 'p3Y', 'gAr', 'gArPopup', 'AnXSoupPopup', '4-t', 'ATP'].includes(page.id),
     ),
   },
   {
